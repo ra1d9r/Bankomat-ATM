@@ -65,4 +65,59 @@ public class ATM {
     }
 
     private static void showMainMenu() {
-        System.out.println("1 - Баланс\n2 - Пополнение\n3 - Снятие\n4 - Перевод\n5 - История\n6 - Выход\nВыбор: "
+        System.out.println("1 - Баланс\n2 - Пополнение\n3 - Снятие\n4 - Перевод\n5 - История\n6 - Выход\nВыбор: ");
+        try {
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (choice == 1) {
+                System.out.println("Баланс: " + currentUser.balance);
+            } else if (choice == 2) {
+                System.out.print("Сумма: ");
+                double amount = scanner.nextDouble();
+                try {
+                    BankService.deposit(currentUser, amount);
+                    System.out.println("Успешно. Баланс: " + currentUser.balance);
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            } else if (choice == 3) {
+                System.out.print("Сумма: ");
+                double amount = scanner.nextDouble();
+                try {
+                    BankService.withdraw(currentUser, amount);
+                    System.out.println("Успешно. Баланс: " + currentUser.balance);
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            } else if (choice == 4) {
+                System.out.print("Карта получателя: ");
+                String targetCard = scanner.nextLine();
+                System.out.print("Сумма: ");
+                double amount = scanner.nextDouble();
+                User targetUser = users.get(targetCard);
+                try {
+                    BankService.transfer(currentUser, targetUser, amount);
+                    System.out.println("Перевод успешен.");
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            } else if (choice == 5) {
+                if (currentUser.history.isEmpty()) {
+                    System.out.println("История пуста.");
+                } else {
+                    for (Transaction t : currentUser.history) {
+                        System.out.println(t.date() + " | " + t.type() + " | " + t.amount());
+                    }
+                }
+            } else if (choice == 6) {
+                currentUser = null;
+                System.out.println("Вы вышли.");
+            }
+            Storage.save(users);
+        } catch (InputMismatchException e) {
+            System.out.println("Неверный ввод.");
+            scanner.nextLine();
+        }
+    }
+}
